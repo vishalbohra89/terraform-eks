@@ -1,0 +1,6 @@
+kubectl get ciliumclusterwidenetworkpolicy \
+  restrict-mgmt-cluster-access \
+  -o jsonpath='{.spec}{"\n"}'
+
+kubectl get networkpolicy -n argocd \
+  -o custom-columns='NAME:.metadata.name,PODS:.spec.podSelector.matchLabels,POLICY-TYPES:.spec.policyTypes'
