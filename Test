@@ -1,0 +1,51 @@
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: cessda-developer
+  namespace: cessda-mgmt
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "pods/log", "services", "configmaps"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "replicasets", "statefulsets"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["pods/exec"]
+    verbs: ["create"]
+
+
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: cessda-developer-binding
+  namespace: cessda-mgmt
+subjects:
+  - kind: User
+    name: developer@company.com
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: cessda-developer
+  apiGroup: rbac.authorization.k8s.io
+
+kubectl apply -f cessda-developer-role.yaml
+kubectl apply -f cessda-developer-binding.yaml
+
+kubectl auth can-i list pods \
+  -n cessda-mgmt \
+  --as=developer@company.com
+
+kubectl auth can-i create deployments \
+  -n cessda-mgmt \
+  --as=developer@company.com
+
+Option A — Individual login through OIDC/SSO
+The developer receives the cluster endpoint and CA information, configures their own kubeconfig and authenticates using the company's identity provider. This is my preferred long-term approach.
+Option B — Temporary access
+Issue a short-lived credential through a supported authentication mechanism and provide a kubeconfig configured for that credential. Ensure it is revocable or expires as intended and has only the required RBAC permissions.
+A critical distinction: kubectl create token creates a token for a ServiceAccount, not an individual developer. If you use this method, create a dedicated ServiceAccount with narrowly scoped permissions, understand the audit implications, and do not share a token belonging to an administrator or application with broader privileges.
+For kubeconfig concepts and safe configuration, see the Kubernetes documentation.
+
