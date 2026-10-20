@@ -1,0 +1,10 @@
+NODE=$(kubectl -n monitoring get pod -l app.kubernetes.io/name=grafana -o jsonpath='{.items[0].spec.nodeName}')
+CPOD=$(kubectl -n kube-system get pod -l k8s-app=cilium --field-selector spec.nodeName=$NODE -o jsonpath='{.items[0].metadata.name}')
+echo $NODE $CPOD
+
+kubectl -n kube-system exec $CPOD -c cilium-agent -- cilium-dbg endpoint list | grep -E "ENFORCEMENT|monitoring"
+
+kubectl -n monitoring get pod kube-prometheus-stack-grafana-fbdb4ccb5-j5j6c -o wide
+kubectl -n kube-system get pods -l k8s-app=cilium -o wide
+
+kubectl -n kube-system exec $CPOD -c cilium-agent -- cilium-dbg endpoint list
