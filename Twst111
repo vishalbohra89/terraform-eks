@@ -1,0 +1,6 @@
+kubectl -n kube-system exec $CPOD -c cilium-agent -- cilium-dbg bpf policy get 254
+PIP=$(kubectl -n monitoring get pod prometheus-kube-prometheus-stack-prometheus-0 -o jsonpath='{.status.podIP}')
+kubectl -n default run nettest --rm -it --image=curlimages/curl --restart=Never -- curl -m 5 -s -o /dev/null -w "%{http_code}\n" http://$PIP:9090/-/healthy
+
+PIP=$(kubectl -n monitoring get pod prometheus-kube-prometheus-stack-prometheus-0 -o jsonpath='{.status.podIP}')
+kubectl -n default run nettest --rm -it --image=curlimages/curl --restart=Never -- curl -m 5 -s -o /dev/null -w "%{http_code}\n" http://$PIP:9090/-/healthy
