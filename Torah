@@ -1,0 +1,3 @@
+for p in $(kubectl -n kube-system get pods -l k8s-app=cilium -o name); do
+  kubectl -n kube-system exec $p -c cilium-agent -- hubble observe --namespace monitoring --verdict DROPPED --last 20 -o compact
+done
