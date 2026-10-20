@@ -1,0 +1,37 @@
+kubectl get cnp,ccnp,netpol -A
+kubectl -n kube-system patch cm cilium-config --type merge -p '{"data":{"policy-audit-mode":"true"}}'
+kubectl -n kube-system rollout restart ds/cilium
+
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: monitoring-baseline
+  namespace: monitoring
+spec:
+  endpointSelector: {}
+  ingress:
+    - fromEndpoints:
+        - {}                       # pods in the same namespace
+    - fromEntities:
+        - host                     # kubelet probes
+        - remote-node
+        - kube-apiserver           # operator webhooks
+        - health
+    - fromEntities:
+        - ingress                  # gateway
+      toPorts:
+        - ports:
+            - {port: "3000", protocol: TCP}   # Grafana
+            - {port: "9090", protocol: TCP}   # Prometheus
+            - {port: "9093", protocol: TCP}   # Alertmanager
+
+
+for p in $(kubectl -n kube-system get pods -l k8s-app=cilium -o name); do
+  kubectl -n kube-system exec $p -c cilium-agent -- hubble observe --namespace monitoring --verdict AUDIT --last 20 -o compact
+done
+
+
+kubectl -n kube-system patch cm cilium-config --type merge -p '{"data":{"policy-audit-mode":"false"}}'
+kubectl -n kube-system rollout restart ds/cilium
+
+
