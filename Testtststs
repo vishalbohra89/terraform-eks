@@ -1,0 +1,11 @@
+for p in $(kubectl -n kube-system get pods -l k8s-app=cilium -o name); do
+  echo "== $p"; kubectl -n kube-system exec $p -c cilium-agent -- hubble observe --from-ip 158.38.38.139 --last 10 -o compact
+done
+
+for p in $(kubectl -n kube-system get pods -l k8s-app=cilium -o name); do
+  echo "== $p"; kubectl -n kube-system exec $p -c cilium-agent -- hubble observe --to-identity ingress --last 10 -o compact
+done
+
+kubectl get svc -A | grep -iE "gateway|cilium-ingress"
+kubectl -n <namespace> get svc <gateway-svc> -o jsonpath='{.spec.type}{" "}{.spec.externalTrafficPolicy}{"\n"}'
+
