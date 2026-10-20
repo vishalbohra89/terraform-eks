@@ -1,0 +1,3 @@
+for p in $(kubectl -n kube-system get pods -l k8s-app=cilium -o name); do
+  echo "== $p"; kubectl -n kube-system exec $p -c cilium-agent -- hubble observe --to-port 443 --last 10 -o compact
+done
