@@ -1,0 +1,5 @@
+kubectl -n monitoring exec kube-prometheus-stack-grafana-fbdb4ccb5-j5j6c -c grafana -- wget -q -T 5 -O - http://kube-prometheus-stack-prometheus.monitoring:9090/-/healthy
+kubectl -n default run nettest3 --rm -it --restart=Never --image=curlimages/curl -- curl -m 5 -s -o /dev/null -w "%{http_code}\n" http://kube-prometheus-stack-prometheus.monitoring:9090/-/healthy
+for p in $(kubectl -n kube-system get pods -l k8s-app=cilium -o name); do
+  kubectl -n kube-system exec $p -c cilium-agent -- hubble observe --verdict DROPPED --to-pod monitoring/prometheus-kube-prometheus-stack-prometheus-0 --last 10 -o compact
+done
