@@ -1,0 +1,21 @@
+gh api user/packages \
+  -f package_type=container \
+  --jq '.[].name'
+
+gh api orgs/ORG_NAME/packages \
+  -f package_type=container \
+  --jq '.[].name'
+
+gh api --paginate '/user/packages?package_type=container' \
+  --jq '.[] | [.name, .visibility] | @tsv'
+
+gh api --paginate '/orgs/ORG_NAME/packages?package_type=container' \
+  --jq '.[] | [.name, .visibility] | @tsv'
+
+gh api --paginate \
+  '/users/USERNAME/packages/container/IMAGE_NAME/versions' \
+  --jq '.[] | {id: .id, tags: .metadata.container.tags}'
+
+gh api --paginate \
+  '/orgs/ORG_NAME/packages/container/IMAGE_NAME/versions' \
+  --jq '.[] | {id: .id, tags: .metadata.container.tags}'
