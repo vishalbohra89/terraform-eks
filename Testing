@@ -1,0 +1,4 @@
+kubectl -n monitoring run nettest2 --rm -it --image=curlimages/curl --restart=Never -- curl -m 5 -s -o /dev/null -w "%{http_code}\n" http://$PIP:9090/-/healthy
+for p in $(kubectl -n kube-system get pods -l k8s-app=cilium -o name); do
+  kubectl -n kube-system exec $p -c cilium-agent -- hubble observe --verdict DROPPED --last 10 -o compact
+done
