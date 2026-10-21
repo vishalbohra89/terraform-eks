@@ -1,0 +1,7 @@
+kubectl run mysql-client \
+  -n cvs \
+  --rm -it \
+  --restart=Never \
+  --image=mysql:8.0 \
+  -- mysql -h cvs-mysql.cvs.svc.cluster.local \
+  -P 3306 -u cvs -p
