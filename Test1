@@ -1,0 +1,7 @@
+kubectl delete svc cessda-gateway-static-ports -n kube-system
+
+kubectl patch svc cilium-gateway-cessda-gateway -n cessda-mgmt --type=json -p='[
+ {"op":"replace","path":"/spec/ports/0/nodePort","value":32664},
+ {"op":"replace","path":"/spec/ports/1/nodePort","value":30963}]'
+
+kubectl get svc cilium-gateway-cessda-gateway -n cessda-mgmt -o yaml | grep -E "name:|nodePort"
