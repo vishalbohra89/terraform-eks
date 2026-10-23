@@ -1,0 +1,2 @@
+kubectl run curltest4 -n cessda-mgmt --rm -it --restart=Never --image=curlimages/curl -- \
+  curl -v --max-time 10 http://prometheus.mgmt.cessda.eu/.well-known/acme-challenge/test
