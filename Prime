@@ -1,0 +1,3 @@
+echo | openssl s_client -connect 192.121.132.89:443 -servername prometheus.mgmt.cessda.eu 2>/dev/null | openssl x509 -noout -serial -enddate -ext subjectAltName
+kubectl get secret -n cilium-secrets -o name
+kubectl get secret <cilium-sync-secret-...> -n cilium-secrets -o jsonpath='{.data.tls\.crt}' | base64 -d | openssl x509 -noout -serial
