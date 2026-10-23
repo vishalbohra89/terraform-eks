@@ -1,0 +1,15 @@
+# Check whether hostAliases already exists (normally empty)
+kubectl get deploy cert-manager -n cert-manager -o jsonpath='{.spec.template.spec.hostAliases}'
+
+GW=$(kubectl get svc cilium-gateway-cessda-gateway -n cessda-mgmt -o jsonpath='{.spec.clusterIP}')
+echo $GW
+
+kubectl patch deployment cert-manager -n cert-manager --type=json \
+  -p="[{\"op\":\"add\",\"path\":\"/spec/template/spec/hostAliases\",\"value\":[{\"ip\":\"$GW\",\"hostnames\":[\"prometheus.mgmt.cessda.eu\"]}]}]"
+
+kubectl rollout status deploy/cert-manager -n cert-manager
+
+kubectl get challenge,certificate -n cessda-mgmt
+kubectl logs -n cert-manager deploy/cert-manager --tail=30 | grep -i prometheus
+
+kubectl patch deployment cert-manager -n cert-manager --type=json -p='[{"op":"remove","path":"/spec/template/spec/hostAliases"}]'
