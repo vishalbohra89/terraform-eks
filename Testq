@@ -1,0 +1,2 @@
+kubectl run curltest2 -n cessda-mgmt --rm -it --restart=Never --image=curlimages/curl -- \
+  curl -vk --resolve jenkins.mgmt.cessda.eu:30963:10.66.0.110 https://jenkins.mgmt.cessda.eu:30963/
