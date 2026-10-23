@@ -1,0 +1,5 @@
+kubectl -n kube-system exec ds/cilium -- sh -c 'curl -s --unix-socket /var/run/cilium/envoy/sockets/admin.sock http://localhost/certs | head -40'
+kubectl -n kube-system exec ds/cilium -- sh -c 'curl -s --unix-socket /var/run/cilium/envoy/sockets/admin.sock http://localhost/certs | head -40'
+GW=$(kubectl get svc cilium-gateway-cessda-gateway -n cessda-mgmt -o jsonpath='{.spec.clusterIP}')
+kubectl run curltest -n cessda-mgmt --rm -it --image=curlimages/curl --restart=Never -- \
+  curl -vk --resolve jenkins.mgmt.cessda.eu:443:$GW https://jenkins.mgmt.cessda.eu/
