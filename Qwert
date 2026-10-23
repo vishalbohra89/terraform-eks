@@ -1,0 +1,9 @@
+kubectl get deploy cert-manager -n cert-manager -o jsonpath='{.spec.template.spec.hostAliases}' > ~/cert-manager-hostaliases-backup.json
+cat ~/cert-manager-hostaliases-backup.json
+
+kubectl patch deployment cert-manager -n cert-manager --type=json \
+  -p='[{"op":"replace","path":"/spec/template/spec/hostAliases/0/ip","value":"10.103.124.132"}]'
+kubectl rollout status deploy/cert-manager -n cert-manager
+
+kubectl get challenge,certificate -n cessda-mgmt
+kubectl logs -n cert-manager deploy/cert-manager --tail=30 | grep -i prometheus
