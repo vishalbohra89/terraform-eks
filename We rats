@@ -1,0 +1,6 @@
+kubectl get secret alertmanager-kube-prometheus-stack-alertmanager -n monitoring \
+  -o jsonpath='{.data.alertmanager\.yaml}' | base64 -d | tail -30
+
+kubectl exec -n monitoring alertmanager-kube-prometheus-stack-alertmanager-0 -c alertmanager -- ls /etc/alertmanager/secrets/alertmanager-smtp/
+kubectl logs -n monitoring alertmanager-kube-prometheus-stack-alertmanager-0 -c alertmanager --tail=20
+kubectl get prometheusrule -n monitoring --show-labels
