@@ -1,0 +1,10 @@
+kubectl get secret alertmanager-smtp -n monitoring -o jsonpath='{.data.password}' | base64 -d | wc -c
+kubectl exec -n monitoring alertmanager-kube-prometheus-stack-alertmanager-0 -c alertmanager -- sh -c 'wc -c < /etc/alertmanager/secrets/alertmanager-smtp/password'
+
+kubectl delete secret alertmanager-smtp -n monitoring
+read -rs "APP_PW?App password (no spaces): "
+echo -n "$APP_PW" | wc -c
+kubectl create secret generic alertmanager-smtp -n monitoring --from-literal=password="$APP_PW"
+unset APP_PW
+
+kubectl logs -n monitoring alertmanager-kube-prometheus-stack-alertmanager-0 -c alertmanager --tail=40 | grep -i "notify\|smtp\|auth" | tail -3
