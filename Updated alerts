@@ -1,0 +1,39 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: cessda-mgmt-alerts
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+  - name: cessda-mgmt
+    rules:
+    - alert: TestAlertAlwaysFiring
+      expr: vector(1)
+      for: 1m
+      labels:
+        severity: test
+      annotations:
+        summary: "Test alert to check the email pipeline"
+    - alert: CertificateNotReady
+      expr: certmanager_certificate_ready_status{condition="False"} == 1
+      for: 15m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Certificate {{ $labels.name }} in {{ $labels.namespace }} is not ready (TLS issue)"
+    - alert: CertificateExpiringSoon
+      expr: (certmanager_certificate_expiration_timestamp_seconds - time()) < 14*24*3600
+      for: 10m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Certificate {{ $labels.name }} expires in under 14 days"
+    - alert: JenkinsBuildFailed
+      expr: default_jenkins_builds_last_build_result_ordinal == 2
+      for: 1m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Jenkins job {{ $labels.jenkins_job }} last build failed"
