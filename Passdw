@@ -1,0 +1,2 @@
+kubectl get secret alertmanager-kube-prometheus-stack-alertmanager -n monitoring \
+  -o jsonpath='{.data.alertmanager\.yaml}' | base64 -d | head -30
