@@ -1,0 +1,38 @@
+read -s APP_PW
+kubectl create secret generic alertmanager-smtp -n monitoring --from-literal=password="$APP_PW"
+unset APP_PW
+kubectl get secret alertmanager-kube-prometheus-stack-alertmanager -n monitoring -o jsonpath='{.data.alertmanager\.yaml}' | base64 -d
+helm list -n monitoring
+
+
+alertmanager:
+  alertmanagerSpec:
+    secrets:
+      - alertmanager-smtp
+  config:
+    global:
+      smtp_smarthost: 'smtp.gmail.com:587'
+      smtp_from: 'no-reply@cessda.eu'
+      smtp_auth_username: 'no-reply@cessda.eu'
+      smtp_auth_password_file: /etc/alertmanager/secrets/alertmanager-smtp/password
+      smtp_require_tls: true
+    route:
+      receiver: email
+      group_by: ['alertname', 'namespace']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 4h
+      routes:
+        - matchers: ['alertname =~ "Watchdog|InfoInhibitor"']
+          receiver: 'null'
+    receivers:
+      - name: 'null'
+      - name: email
+        email_configs:
+          - to: 'you@cessda.eu'
+            send_resolved: true
+
+
+helm upgrade kube-prometheus-stack prometheus-community/kube-prometheus-stack \
+  -n monitoring --reuse-values --version <CHART_VERSION> -f alertmanager-values.yaml
+kubectl logs -n monitoring alertmanager-kube-prometheus-stack-alertmanager-0 -c alertmanager --tail=30
